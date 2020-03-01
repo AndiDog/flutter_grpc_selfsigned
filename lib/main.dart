@@ -43,11 +43,27 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+Future<ClientChannel> makeChannel() async {
+  final caCert = await rootBundle.loadString('assets/pki/ca/ca.crt');
+
+  return ClientChannel(
+    'localhost',
+    port: 13100,
+    options: ChannelOptions(
+      credentials: ChannelCredentials.secure(
+        certificates: utf8.encode(caCert),
+      ),
+    ),
+  );
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
     setState(() {
+      final channel = makeChannel();
+
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
       // so that the display can reflect the updated values. If we changed

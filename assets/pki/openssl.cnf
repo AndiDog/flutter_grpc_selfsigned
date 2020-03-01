@@ -1,0 +1,77 @@
+[ ca ]
+default_ca = CA_default
+
+[ CA_default ]
+
+dir                            = ./ca
+certs                          = $dir/certs
+crl_dir                        = $dir/crl
+new_certs_dir                  = $dir/newcerts
+database                       = $dir/index.txt
+serial                         = $dir/serial
+RANDFILE                       = $dir/private/.rand
+
+private_key                    = $dir/private/ca.key
+certificate                    = $dir/ca.crt
+
+crlnumber                      = $dir/crlnumber
+crl                            = $dir/crl/ca.crl
+crl_extensions                 = crl_ext
+default_crl_days               = 30
+
+default_md                     = sha256
+
+name_opt                       = ca_default
+cert_opt                       = ca_default
+default_days                   = 3650
+preserve                       = no
+copy_extensions                = none
+policy                         = policy_any
+email_in_dn                    = no
+
+[ policy_any ]
+countryName                    = supplied
+stateOrProvinceName            = supplied
+organizationName               = supplied
+organizationalUnitName         = supplied
+commonName                     = supplied
+emailAddress                   = optional
+
+[ v3_ca ]
+subjectKeyIdentifier           = hash
+authorityKeyIdentifier         = keyid:always,issuer
+# pathlen:0 = no intermediate CAs
+basicConstraints               = critical, CA:true, pathlen:0
+keyUsage                       = critical, digitalSignature, cRLSign, keyCertSign
+
+[ req ]
+default_bits                   = 2048
+distinguished_name             = req_distinguished_name
+string_mask                    = utf8only
+
+default_md                     = sha256
+
+x509_extensions                = v3_ca
+
+[ req_distinguished_name ]
+countryName                    = Country Name (2 letter code)
+stateOrProvinceName            = State or Province Name
+localityName                   = Locality Name
+0.organizationName             = Organization Name
+organizationalUnitName         = Organizational Unit Name
+commonName                     = Common Name
+
+countryName_default            = DE
+stateOrProvinceName_default    = Nowhere
+localityName_default           = Nowhere
+0.organizationName_default     = Nowhere
+organizationalUnitName_default = Nowhere
+
+[ server_cert ]
+basicConstraints               = CA:FALSE
+nsCertType                     = server
+subjectKeyIdentifier           = hash
+authorityKeyIdentifier         = keyid,issuer:always
+keyUsage                       = critical, digitalSignature, keyEncipherment
+extendedKeyUsage               = serverAuth
+subjectAltName                 = @alt_names
