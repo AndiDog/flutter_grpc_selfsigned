@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package grpc_selfsigned_test_proto;
+
+message StringMsg {
+  string s = 1;
+}
+
+service ExampleService {
+  rpc HelloWorld(StringMsg) returns (StringMsg) {}
+}

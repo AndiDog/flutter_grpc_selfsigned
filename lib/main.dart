@@ -1,4 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:grpc/grpc.dart';
+
+import 'generated/example.pbgrpc.dart';
 
 void main() => runApp(MyApp());
 
@@ -50,8 +56,13 @@ Future<ClientChannel> makeChannel() async {
     'localhost',
     port: 13100,
     options: ChannelOptions(
+      connectionTimeout: Duration(seconds: 5),
       credentials: ChannelCredentials.secure(
         certificates: utf8.encode(caCert),
+        // There's no solution on Flutter iOS to add a trusted, self-signed *root* CA.
+        // Hence, only during development (i.e. `localhost` as server), disable certificate
+        // verification.
+        onBadCertificate: (certificate, host) => host == 'localhost:13100',
       ),
     ),
   );
@@ -60,10 +71,14 @@ Future<ClientChannel> makeChannel() async {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      final channel = makeChannel();
+  void _incrementCounter() async {
+    final channel = await makeChannel();
+    final client = ExampleServiceClient(channel,
+        options: CallOptions(timeout: Duration(seconds: 10)));
+    final res = await client.helloWorld(StringMsg()..s = 'buddy');
+    print('gRPC call result: ${res.s}');
 
+    setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
       // so that the display can reflect the updated values. If we changed
